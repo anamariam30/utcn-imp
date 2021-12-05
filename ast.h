@@ -45,6 +45,7 @@ public:
     REF,
     BINARY,
     CALL,
+    INT,
   };
 
 public:
@@ -82,7 +83,8 @@ class BinaryExpr : public Expr {
 public:
   /// Enumeration of binary operators.
   enum class Kind {
-    ADD
+    ADD,
+    SUB
   };
 
 public:
@@ -295,6 +297,25 @@ public:
 
 private:
   std::shared_ptr<BlockStmt> body_;
+};
+
+
+/**
+ * Integer Expression
+ */
+class IntExpr : public Expr {
+public:
+  IntExpr(const std::uint64_t number)
+    : Expr(Kind::INT)
+    , number_(number)
+  {
+  }
+
+  const std::uint64_t &GetNumber() const { return number_; }
+
+private:
+  /// Name of the identifier.
+  std::uint64_t number_;
 };
 
 /// Alternative for a toplevel construct.

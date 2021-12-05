@@ -177,6 +177,10 @@ void Codegen::LowerExpr(const Scope &scope, const Expr &expr)
     case Expr::Kind::CALL: {
       return LowerCallExpr(scope, static_cast<const CallExpr &>(expr));
     }
+    case Expr::Kind::INT: {
+      return LowerIntExpr(scope, static_cast<const IntExpr &>(expr));
+    }
+
   }
 }
 
@@ -209,6 +213,10 @@ void Codegen::LowerBinaryExpr(const Scope &scope, const BinaryExpr &binary)
     case BinaryExpr::Kind::ADD: {
       return EmitAdd();
     }
+
+    case BinaryExpr::Kind::SUB: {
+      return EmitSub();
+    }
   }
 }
 
@@ -221,6 +229,13 @@ void Codegen::LowerCallExpr(const Scope &scope, const CallExpr &call)
   LowerExpr(scope, call.GetCallee());
   EmitCall(call.arg_size());
   depth_ -= call.arg_size();
+}
+
+// -----------------------------------------------------------------------------
+void Codegen::LowerIntExpr(const Scope &scope, const IntExpr &intE)
+{
+  depth_ = depth_ + 1;
+  EmitPushInt(intE.GetNumber());
 }
 
 // -----------------------------------------------------------------------------
@@ -299,6 +314,13 @@ void Codegen::EmitCall(unsigned nargs)
 }
 
 // -----------------------------------------------------------------------------
+void Codegen::EmitPushInt(uint64_t integer)
+{
+  Emit<Opcode>(Opcode::PUSH_INT);
+  Emit<uint64_t>(integer);
+}
+
+// -----------------------------------------------------------------------------
 void Codegen::EmitPushFunc(Label entry)
 {
   depth_ += 1;
@@ -338,6 +360,14 @@ void Codegen::EmitAdd()
   assert(depth_ > 0 && "no elements on stack");
   depth_ -= 1;
   Emit<Opcode>(Opcode::ADD);
+}
+
+// -----------------------------------------------------------------------------
+void Codegen::EmitSub()
+{
+  assert(depth_ > 0 && "no elements on stack");
+  depth_ -= 1;
+  Emit<Opcode>(Opcode::SUB);
 }
 
 // -----------------------------------------------------------------------------
